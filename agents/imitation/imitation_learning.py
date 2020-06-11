@@ -82,10 +82,10 @@ class ImitationLearning(Agent):
         self.count=0
         self._enable_manual_control = False
         self._is_on_reverse = False
-        pygame.init()
-        self._display = pygame.display.set_mode(
-                (WINDOW_WIDTH, WINDOW_HEIGHT),
-                                pygame.HWSURFACE | pygame.DOUBLEBUF)
+        #pygame.init()
+        #self._display = pygame.display.set_mode(
+        #        (WINDOW_WIDTH, WINDOW_HEIGHT),
+        #                        pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.command_follower = CommandFollower("Town01")
         self.traffic_light_infraction = False
         #self._initialize_game()
@@ -120,8 +120,8 @@ class ImitationLearning(Agent):
     def run_step(self, measurements, sensor_data, directions, target):
 
         self.state = self.command_follower.run_step(measurements, sensor_data, directions, target)
-        pygame.event.get()       
-        key_control = self.get_keyboard_control(pygame.key.get_pressed()) 
+        #pygame.event.get()       
+        #key_control = self.get_keyboard_control(pygame.key.get_pressed()) 
         if self._enable_manual_control: 
             self.state.update({
             "predicted_stop_pedestrian": 1,
