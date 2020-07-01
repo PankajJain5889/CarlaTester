@@ -334,12 +334,18 @@ class DrivingBenchmark(object):
             if data["Intersection-Lane"] > 0.5 :
                 data["Intersection-Lane"] = 1
                 data["Intersection-Offroad"] = 0
+                data["Collision-Pedestrian"] = 0
+                data["Collision-Vehicle"] =  0
+                data["Collision-Other"] =  0 
                 print("Lane Infraction")
                 success = False
                 break
             elif data["Intersection-Offroad"] > 0.5 :
                 data["Intersection-Offroad"] = 1
                 data["Intersection-Lane"] = 0
+                data["Collision-Pedestrian"] = 0
+                data["Collision-Vehicle"] =  0
+                data["Collision-Other"] =  0 
                 print("Lane Infraction")
                 success = False
                 break       

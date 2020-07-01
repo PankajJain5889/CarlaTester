@@ -61,7 +61,7 @@ class ImitationLearning(Agent):
         config_gpu.gpu_options.visible_device_list = '0'
         config_gpu.gpu_options.per_process_gpu_memory_fraction = memory_fraction
         self._sess = tf.Session(config=config_gpu)
-        self._models_path ="/home/pankaj/Trainer_modules/CARLAILtrainer/models/"#"D:/outbox/changed_old_trainer/trainer5/models/"#dir_path + '/model/'
+        self._models_path ="/home/pankaj/Trainer_module/CARLAILtrainer/models/"#"D:/outbox/changed_old_trainer/trainer5/models/"#dir_path + '/model/'
         self._sess.run(tf.global_variables_initializer())
         #self.load_model()
         with tf.device('/gpu:0'):
