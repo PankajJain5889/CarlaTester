@@ -61,7 +61,7 @@ class ImitationLearning(Agent):
         config_gpu.gpu_options.visible_device_list = '0'
         config_gpu.gpu_options.per_process_gpu_memory_fraction = memory_fraction
         self._sess = tf.Session(config=config_gpu)
-        self._models_path ="/home/pankaj/Trainer_module/CARLAILtrainer/models/"#"D:/outbox/changed_old_trainer/trainer5/models/"#dir_path + '/model/'
+        self._models_path ="/home/pankaj/CARLA_0.8.4/outsideTrainer/CARLAILtrainer/models/"#"D:/outbox/changed_old_trainer/trainer5/models/"#dir_path + '/model/'
         self._sess.run(tf.global_variables_initializer())
         #self.load_model()
         with tf.device('/gpu:0'):
@@ -86,7 +86,7 @@ class ImitationLearning(Agent):
         #self._display = pygame.display.set_mode(
         #        (WINDOW_WIDTH, WINDOW_HEIGHT),
         #                        pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.command_follower = CommandFollower("Town01")
+        self.command_follower = CommandFollower(city_name)
         self.traffic_light_infraction = False
         #self._initialize_game()
     #def load_model(self):
@@ -196,14 +196,14 @@ class ImitationLearning(Agent):
         
         predicted_steers ,predicted_acc, predicted_brake = output[0]
         predicted_speed = predicted_speed[0]
-        #print(f"Predicted Speed: ", predicted_speed *3.6 *MAX_SPEED)
+        print(f"Predicted Speed: ", predicted_speed *3.6 *MAX_SPEED)
         for i in range(len(pred_intent[0])):
             if pred_intent[0][i] >0.9:
                pred_intent[0][i] = 1   
             elif pred_intent[0][i] <= 0.05:
                pred_intent[0][i] = 0
         os.system('clear')
-        if predicted_speed[0] > 0.3 and curr_speed < 0.1: #False braking
+        if (predicted_speed *3.6 *MAX_SPEED )> 5 and (speed *3.6 *MAX_SPEED) <  5: #False braking
             print("False braking !!!!")
             predicted_acc = 0.5
             predicted_brake = 0
