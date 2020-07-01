@@ -93,8 +93,8 @@ class DrivingBenchmark(object):
 
 
         logging.info('START')
-        cols = ['Start_position' , 'End_position' , 'Distance', 'Time' ,"Directions", "Avg-Speed" ,"Collision-Pedestrian" , "Collision-Traffic", "Collision-Other", 
-                 "Intersection-Lane" , "Intersection-Offroad" , "Traffic_Light_Infraction", "Success",'Success without Collision', "Success without Lane-Infraction"]
+        cols = ['Start_position' , 'End_position' , 'Total-Distance', 'Time' ,"Distance-Travelled", "Follow_lane", "Straight", "Left", "Right", "Avg-Speed" ,"Collision-Pedestrian" , "Collision-Vehickle", "Collision-Other", 
+                 "Intersection-Lane" , "Intersection-Offroad" , "Traffic_Light_Infraction", "Success"]
         df  = pd.DataFrame(columns=cols)
         ts = str(int(time.time()))
                 
@@ -134,7 +134,7 @@ class DrivingBenchmark(object):
                         sldist(
                             [positions[start_index].location.x, positions[start_index].location.y],
                             [positions[end_index].location.x, positions[end_index].location.y])
-                    data["Distance"] = initial_distance
+                    data["Total-Distance"] = initial_distance
                     time_out = experiment_suite.calculate_time_out(
                         self._get_shortest_path(positions[start_index], positions[end_index]))
 
@@ -165,9 +165,9 @@ class DrivingBenchmark(object):
                 #data['End_position'] = end_index
                 #df = df.append(data , ignore_index=True)
                 #print(df)
-                data["Avg-Speed"] = 3.6 *(data['Distance'] / data['Time'])
+                data["Avg-Speed"] = 3.6 *(data['Total-Distance'] / data['Time'])
                 df = df.append(data , ignore_index=True)
-                df  = df[cols]
+                df = df[cols]
                 try: 
                     df.to_csv("Test_result_"+ts + '.csv' ,columns = cols ,index= True)
                 except:
@@ -255,7 +255,11 @@ class DrivingBenchmark(object):
         data["Directions"] = []
         agent.command_follower.controller.params['target_speed'] = agent.command_follower.controller.params['default_speed_limit']
         agent.traffic_light_infraction = False
-
+        for x in range(6):
+            data[direction2text[x]] = 0
+        data["Collision-Pedestrian"] = 0
+        data["Collision-Vehicle"] =  0
+        data["Collision-Other"] =  0  
         while True: #
 
             # Read data from server with the client
@@ -263,8 +267,8 @@ class DrivingBenchmark(object):
             # The directions to reach the goal are calculated.
             directions = self._get_directions(measurements.player_measurements.transform, target)
             # Agent process the data.
-            if direction2text[directions] not in data["Directions"]:
-                data["Directions"].append(direction2text[directions])
+            if data[direction2text[directions]] == 0:
+                data[direction2text[directions]] = 1
             control , controller_state = agent.run_step(measurements, sensor_data, directions, target)
             # Send the control commands to the vehicle
             client.send_control(control)
@@ -279,7 +283,7 @@ class DrivingBenchmark(object):
             current_y = measurements.player_measurements.transform.location.y
             # If vehicle has stopped for pedestiran, vehicle or traffic light increase timeout by 1 unit
             if min(controller_state['stop_pedestrian'], controller_state['stop_vehicle'],\
-                controller_state['stop_traffic_lights']) == 0 :
+                controller_state['stop_traffic_lights']) <= 0.3 :
                 time_out+= (measurements.game_timestamp - current_timestamp)/1000
             #logging.info("Controller sis Inputting:")
             #logging.info('Steer = %f Throttle = %f Brake = %f ',
@@ -292,10 +296,16 @@ class DrivingBenchmark(object):
             #logging.info('Status:')
             print(f"Distance to target: {float(distance):.2f} \t Time_taken: {(current_timestamp -initial_timestamp)/1000 :.2f}\t Timeout : {time_out :.2f}")
             # Check if reach the target
+            data["Distance-Travelled"] = data["Total-Distance"] - distance
             if distance < self._distance_for_success:
                 success = True
                 break
             if (current_timestamp-initial_timestamp)/1000 > time_out:
+                data["Intersection-Offroad"] = 0
+                data["Intersection-Lane"] = 0 
+                data["Collision-Pedestrian"] = 0
+                data["Collision-Vehicle"] =  0
+                data["Collision-Other"] =  0 
                 success = False
                 print("Timeout")
                 break
@@ -309,30 +319,36 @@ class DrivingBenchmark(object):
             if measurements.player_measurements.collision_pedestrians >300 or \
                 measurements.player_measurements.collision_vehicles > 300 or \
                 measurements.player_measurements.collision_other>300:
+                if measurements.player_measurements.collision_pedestrians >300:
+                    data["Collision-Pedestrian"] = 1
+                elif measurements.player_measurements.collision_vehicles > 300:
+                    data["Collision-Vehicle"] =  1
+                elif measurements.player_measurements.collision_other > 300:
+                    data["Collision-Other"] =  1    
+                data["Intersection-Offroad"] = 0
+                data["Intersection-Lane"] = 0  
                 print("Collison detected")
                 success = False
                 break
-        
-            if data["Intersection-Lane"] > 0.5 or \
-            data["Intersection-Offroad"] > 0.5 :
+                
+            if data["Intersection-Lane"] > 0.5 :
+                data["Intersection-Lane"] = 1
+                data["Intersection-Offroad"] = 0
                 print("Lane Infraction")
                 success = False
                 break
-
-        data["Intersection-Lane"] *= 100
-        data["Intersection-Offroad"] *= 100    
-        data["Collision-Pedestrian"] = measurements.player_measurements.collision_pedestrians
-        data["Collision-Traffic"] = measurements.player_measurements.collision_vehicles
-        data["Collision-Other"] = measurements.player_measurements.collision_other
-        if data["Collision-Pedestrian"] <= 300 and  data["Collision-Traffic"] <= 400  and  data["Collision-Other"] <= 400 and success ==True: 
-            data['Success without Collision'] = 1
-        else:
-            data['Success without Collision'] = 0
-        if  data["Intersection-Lane"] < 20 and data["Intersection-Offroad"] < 20 and success == True:
-            data["Success without Lane-Infraction"] = 1
-        else: 
-            data["Success without Lane-Infraction"] = 0
+            elif data["Intersection-Offroad"] > 0.5 :
+                data["Intersection-Offroad"] = 1
+                data["Intersection-Lane"] = 0
+                print("Lane Infraction")
+                success = False
+                break       
         if success:
+            data["Intersection-Offroad"] = 0
+            data["Intersection-Lane"] = 0 
+            data["Collision-Pedestrian"] = 0
+            data["Collision-Vehicle"] =  0
+            data["Collision-Other"] =  0 
             return 1, measurement_vec, control_vec, float(
                 current_timestamp - initial_timestamp) / 1000.0, distance, data
         return 0, measurement_vec, control_vec, time_out, distance, data

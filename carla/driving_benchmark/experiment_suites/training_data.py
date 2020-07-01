@@ -122,8 +122,8 @@ class trainingData(ExperimentSuite):
 
         if self._city_name == 'Town01':
             poses_tasks = self._poses_town01()
-            vehicles_tasks = [0,25]
-            pedestrians_tasks = [0,25]
+            vehicles_tasks = [25]
+            pedestrians_tasks = [25]
         else:
             poses_tasks = self._poses_town02()
             vehicles_tasks = [0,25]
