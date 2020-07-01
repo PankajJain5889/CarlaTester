@@ -5,6 +5,7 @@ import warnings
 warnings.filterwarnings("ignore")
 from carla.driving_benchmark import run_driving_benchmark
 from carla.driving_benchmark.experiment_suites import CoRL2017
+from carla.driving_benchmark.experiment_suites import trainingData
 
 from agents.imitation.imitation_learning import ImitationLearning
 
@@ -39,6 +40,11 @@ if (__name__ == '__main__'):
         help='The town that is going to be used on benchmark'
              + '(needs to match active town in server, options: Town01 or Town02)')
     argparser.add_argument(
+        '-t', '--test-name',
+        metavar='T',
+        default='trainingData',
+        help="The set of map waypoint to run the test")
+    argparser.add_argument(
         '-n', '--log_name',
         metavar='T',
         default='test',
@@ -65,10 +71,12 @@ if (__name__ == '__main__'):
     logging.info('listening to server %s:%s', args.host, args.port)
 
     agent = ImitationLearning(args.city_name, args.avoid_stopping)
-
-    corl = CoRL2017(args.city_name)
-
+    if args.test_name == 'CORL2017':
+        corl = CoRL2017(args.city_name)
+    else:
+        corl = trainingData(args.city_name)
     # Now actually run the driving_benchmark
     run_driving_benchmark(agent, corl, args.city_name,
                           args.log_name, args.continue_experiment,
                           args.host, args.port)
+ 

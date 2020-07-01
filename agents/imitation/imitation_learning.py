@@ -61,7 +61,7 @@ class ImitationLearning(Agent):
         config_gpu.gpu_options.visible_device_list = '0'
         config_gpu.gpu_options.per_process_gpu_memory_fraction = memory_fraction
         self._sess = tf.Session(config=config_gpu)
-        self._models_path ="/home/pankaj/Trainer_module/trainer11/CARLAILtrainer/models/"#"D:/outbox/changed_old_trainer/trainer5/models/"#dir_path + '/model/'
+        self._models_path ="/home/pankaj/Trainer_module/CARLAILtrainer/models/"#"D:/outbox/changed_old_trainer/trainer5/models/"#dir_path + '/model/'
         self._sess.run(tf.global_variables_initializer())
         #self.load_model()
         with tf.device('/gpu:0'):
@@ -145,7 +145,7 @@ class ImitationLearning(Agent):
         
         steer, acc, brake , pred_intents , pred_speed = self._control_function(image_input, speed, direction)
 
-        self.command_follower.param_controller['target_speed'] = 30.0 # Fixed speed limit to 30 km/hr for testing 
+        #self.command_follower.param_controller['target_speed'] = 30.0 # Fixed speed limit to 30 km/hr for testing 
         if acc > brake:
             brake = 0.0
         control= self.command_follower.controller.get_control(self.state['wp_angle'], self.state['wp_angle_speed'], min(pred_intents),
