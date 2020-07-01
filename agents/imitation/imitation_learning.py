@@ -145,7 +145,7 @@ class ImitationLearning(Agent):
         
         steer, acc, brake , pred_intents , pred_speed = self._control_function(image_input, speed, direction)
 
-        #self.command_follower.param_controller['target_speed'] = 30.0 # Fixed speed limit to 30 km/hr for testing 
+        self.command_follower.param_controller['target_speed'] = 30.0 # Fixed speed limit to 30 km/hr for testing 
         if acc > brake:
             brake = 0.0
         control= self.command_follower.controller.get_control(self.state['wp_angle'], self.state['wp_angle_speed'], min(pred_intents),

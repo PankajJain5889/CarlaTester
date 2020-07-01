@@ -93,7 +93,7 @@ class DrivingBenchmark(object):
 
 
         logging.info('START')
-        cols = ['Start_position' , 'End_position' , 'Total-Distance', 'Time' ,"Distance-Travelled", "Follow_lane", "Straight", "Left", "Right", "Avg-Speed" ,"Collision-Pedestrian" , "Collision-Vehickle", "Collision-Other", 
+        cols = ['Start_position' , 'End_position' , 'Total-Distance', 'Time' ,"Distance-Travelled", "Follow_lane", "Straight", "Left", "Right", "Avg-Speed" ,"Collision-Pedestrian" , "Collision-Vehicle", "Collision-Other", 
                  "Intersection-Lane" , "Intersection-Offroad" , "Traffic_Light_Infraction", "Success"]
         df  = pd.DataFrame(columns=cols)
         ts = str(int(time.time()))
