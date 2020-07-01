@@ -51,10 +51,10 @@ class CoRL2017(ExperimentSuite):
                     [111, 64], [79, 45], [84, 69], [73, 31], [37, 81]]
 
         return [
-                 
+                 _poses_straight(),
                 _poses_one_curve(),
                 _poses_navigation(),
-                _poses_straight(),
+                _poses_navigation()
                 
                 ]
 
